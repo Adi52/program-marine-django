@@ -1,0 +1,12 @@
+{% extends 'marine/base.html' %}
+
+{% block content %}
+
+
+    <form action="{% url 'marine:new_book' %}" method="post" class="form">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button name="submit">Rezerwuj</button>
+    </form>
+{% endblock %}

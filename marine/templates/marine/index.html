@@ -1,0 +1,32 @@
+{% extends 'marine/base.html' %}
+
+{% block content %}
+    <table style="width:40%" border="1">
+        <tr>
+            <th>Miejsce</th>
+            <th>Zajęte do</th>
+            <th>Rezerwuj</th>
+        </tr>
+
+    {% for parking_place in parking_places %}
+        <tr>
+            <th>{{ parking_place.parking_place }}</th>
+            <th>
+                {% if parking_place.occupied_to and not parking_place.place_free %}
+                {{ parking_place.occupied_to }}
+                {% else %} WOLNE
+                {% endif %}
+            </th>
+            <th>
+                <form action="{% url 'marine:new_book' %}">
+                {% if parking_place.place_free %}
+                    <button type="submit" name="parking_place" value="{{ parking_place.parking_place }}">Rezerwuj</button>
+                {% else %}
+                    <button type="button" disabled>Rezerwuj</button>
+                {% endif %}
+                </form>
+            </th>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}
