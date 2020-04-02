@@ -1,16 +1,18 @@
 from django.db import models
 from django.utils import timezone
+import datetime
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 
 
 class ParkingPlace(models.Model):
     parking_place = models.CharField(max_length=5)
-    occupied_to = models.DateTimeField('Occupied to', blank=True, null=True)
+    occupied_to = models.DateField('Occupied to', blank=True, null=True)
+    name_yacht = models.CharField(max_length=50, null=True, blank=True)
 
     def place_free(self):
         if self.occupied_to:
-            return self.occupied_to <= timezone.now()
+            return self.occupied_to <= datetime.date.today()
         else:
             return True
 
@@ -43,8 +45,8 @@ class EntryData(models.Model):
     commissioning_body_tel = models.CharField(max_length=30, verbose_name='Numer telefonu')
     commissioning_body_email = models.EmailField(max_length=30, verbose_name='E-mail')
     commissioning_body_nip = models.CharField(max_length=30, verbose_name='NIP')
-    parking_period_from = models.DateTimeField(null=True, verbose_name='Postój od')
-    parking_period_to = models.DateTimeField(null=True, verbose_name='Postój do')
+    parking_period_from = models.DateField(null=True, verbose_name='Postój od')
+    parking_period_to = models.DateField(null=True, verbose_name='Postój do')
     correspondence_address = models.CharField(max_length=100, blank=True,
                                               default='Wpisz jeżeli różni się od adresu wyżej',
                                               verbose_name='Adres do korespondencji')
@@ -54,6 +56,7 @@ class EntryData(models.Model):
         super(EntryData, self).save(*args, **kwargs)
         parking_place = self.parking_place
         parking_place.occupied_to = self.parking_period_to
+        parking_place.name_yacht = self.name_yacht
         parking_place.save()
 
     def __str__(self):

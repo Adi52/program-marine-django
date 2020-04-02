@@ -2,6 +2,9 @@ from django import forms
 
 from .models import EntryData
 
+import datetime
+
+
 
 class EntryDataForm(forms.ModelForm):
     class Meta:
@@ -25,4 +28,14 @@ class EntryDataForm(forms.ModelForm):
             'correspondence_address',
         ]
         # W ten sposób dodajemy widgety aby ładnie dorobić potem frontend
-        widgets = {'name_yacht': forms.TextInput(attrs={'class': 'name_yacht', 'placeholder': 'np. Sunrisse'})}
+        widgets = {
+            'name_yacht': forms.TextInput(attrs={'class': 'name_yacht', 'placeholder': 'np. Sunrisse'}),
+            'parking_period_from': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today()}),
+            'parking_period_to': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today()}),
+
+        }
+
+
+"""
+Usuń możliwość wybrania niemożliwego okresu od przyszłości do przeszłości!
+"""
