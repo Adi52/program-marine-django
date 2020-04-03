@@ -26,6 +26,7 @@ class EntryDataForm(forms.ModelForm):
             'parking_period_from',
             'parking_period_to',
             'correspondence_address',
+            'chip_card'
         ]
         # W ten sposób dodajemy widgety aby ładnie dorobić potem frontend
         widgets = {

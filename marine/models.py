@@ -1,8 +1,8 @@
 from django.db import models
-from django.utils import timezone
 import datetime
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+from django.core.exceptions import ValidationError
 
 
 class ParkingPlace(models.Model):
@@ -52,6 +52,13 @@ class EntryData(models.Model):
                                               verbose_name='Adres do korespondencji')
     chip_card = models.BooleanField(default=False, verbose_name='Karta chipowa')
 
+    def clean(self):
+        super().clean()
+        date_from = self.parking_period_from
+        date_to = self.parking_period_to
+        if date_from > date_to:
+            raise ValidationError('"Postój" do musi być później niż "Postój od"!')
+
     def save(self, *args, **kwargs):
         super(EntryData, self).save(*args, **kwargs)
         parking_place = self.parking_place
@@ -65,8 +72,6 @@ class EntryData(models.Model):
     @receiver(pre_delete)
     def mymodel_delete(sender, instance, **kwargs):
         d = ParkingPlace.objects.get(parking_place=instance.parking_place)
+        d.name_yacht = None
         d.occupied_to = None
         d.save()
-
-
-

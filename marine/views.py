@@ -3,10 +3,15 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.views import generic
 
+from math import floor
+
 from .models import ParkingPlace, EntryData
 from .forms import EntryDataForm
 
-from externals.apps import replace_non_ascii
+from externals.apps import replace_non_ascii, zl_to_words
+from externals.apps.declarations import create_declaration
+
+
 from docx import Document
 
 
@@ -53,6 +58,9 @@ def create_and_download_declaration(request):
     yacht = {'name': c_d.name_yacht, 'registration_number': c_d.registration_number, 'home_port': c_d.home_port,
              'length': c_d.yacht_length, 'width': c_d.yacht_width, 'ytype': c_d.yacht_type}
     fee = {'parking_fee': 8000, 'quarter_fee': 2000}
+
+    fee_words = zl_to_words.say_int(floor(fee['parking_fee']))
+    # str(x%1)[2:4]
     owner_details = {'name': c_d.owner_details_name, 'address': c_d.owner_details_address}
     parking_period = {'from': c_d.parking_period_from.strftime("%d.%m.%Y"),
                       'to': c_d.parking_period_to.strftime("%d.%m.%Y")}
@@ -61,85 +69,9 @@ def create_and_download_declaration(request):
                           'nip': c_d.commissioning_body_nip}
     # Domyślnie False, ponieważ większości jachtów nie dotyczy
     chip_card = c_d.chip_card
-    media = False
-    # Sprawdza czy jacht stoi na kei nieopomiarowanej (dodatkowa opłata za media).
-    if 'D' in parking_place:
-        media = True
-
-    document = Document('externals/apps/create_declaration/deklaracja.docx')
-
-    for paragraph in document.paragraphs:
-        if 'Miejsce postojowe' in paragraph.text:
-            paragraph.text = 'Miejsce postojowe {}                                                               ' \
-                             '                                        ' \
-                             'Data {}'.format(parking_place, date)
-
-    document.add_paragraph('\n')
-    document.add_paragraph('Nazwa jachtu: ', style='List Number').add_run(yacht['name']).bold = True
-    document.add_paragraph('Nr rejestracyjny: ', style='List Number').add_run(
-        yacht['registration_number']).bold = True
-    document.add_paragraph('Port macierzysty: ', style='List Number').add_run(
-        yacht['home_port']).bold = True
-    document.add_paragraph('Dane jachtu: ', style='List Number')
-    p = document.add_paragraph('            Długość: ')
-    p.add_run(str(yacht['length'])).bold = True
-    p.add_run(' m')
-    p.add_run('             Szerokość: ')
-    p.add_run(str(yacht['width'])).bold = True
-    p.add_run(' m')
-    document.add_paragraph('Typ jachtu: ', style='List Number').add_run(yacht['ytype']).bold = True
-    document.add_paragraph('Dane właściciela* lub użytkownika jachtu*: ', style='List Number')
-    document.add_paragraph('            - imię i nazwisko: ').add_run(owner_details['name']).bold = True
-    document.add_paragraph('            - adres : ').add_run(owner_details['address']).bold = True
-    document.add_paragraph('Dane armatora: ', style='List Number')
-    document.add_paragraph('            - imię i nazwisko: ').add_run(owner_details['name']).bold = True
-    document.add_paragraph('            - adres : ').add_run(owner_details['address']).bold = True
-    document.add_paragraph('Podmiot zlecający, podpisujący umowę na postój jachtu: ', style='List Number')
-    document.add_paragraph('            - nazwisko imię */ pełna nazwa klubu lub firmy: ').add_run(
-        commissioning_body['name']).bold = True
-    document.add_paragraph('            - adres: ').add_run(commissioning_body['address']).bold = True
-    document.add_paragraph('            - tel: ').add_run(commissioning_body['tel']).bold = True
-    document.add_paragraph('            - E-mail: ').add_run(commissioning_body['e-mail']).bold = True
-
-    document.add_paragraph('            - NIP klubu/stowarzyszenia: ').add_run(
-        commissioning_body['nip']).bold = True
-    document.add_paragraph('Deklarowany okres i czas postoju: ', style='List Number')
-    document.add_paragraph('            - od dnia: ').add_run(parking_period['from']).bold = True
-    document.add_paragraph('            - do dnia: ').add_run(parking_period['to']).bold = True
-    document.add_paragraph('')
-    document.add_paragraph('Opłata za postój wynosi: ', style='List Number').add_run(
-        str(fee['parking_fee'])).bold = True
-    document.add_paragraph(
-        'Czynsz płatny, zgodnie z wystawioną fakturą z góry, jednorazowo lub w czterech poniższych '
-        'ratach za każdy kwartał do:')
-    document.add_paragraph('      I. 15.05.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('     II. 15.08.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('    III. 15.11.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('    IV. 15.21.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('na rachunek Wynajmującego o nr  88 1030 1117 0000 0000 8899 5007.')
-    document.add_paragraph('Adres do korespondencji: ', style='List Number').add_run(
-        owner_details['address']).bold = True
-    document.add_paragraph('Karta chipowa: ', style='List Number').add_run(chip_card).bold = True
-    if media:
-        p = document.add_paragraph('Dodatkowo zlecone usługi: ', style='List Number')
-        p.add_run('184zł - miejsce postojowe na wodzie nieopomiarowane').bold = True
-    document.add_paragraph('Miejsce postoju nr: ', style='List Number').add_run(parking_place).bold = True
-    document.add_paragraph(
-        '\nUprzejmie informujemy, że w trakcie postoju jachtu na przystani NCŻ AWFiS może zaistnieć '
-        'konieczność zmiany miejsca lokalizacji postoju jachtu na inne zgodnie z ze wskazaniem '
-        'upoważnionego pracownika przystani.\n\n'
-        'Oświadczam, iż zapoznałem się z Regulaminem przystani Narodowego Centrum Żeglarstwa AWFiS '
-        'Gdańsku, w tym zawarcia umowy na postój. W pełni go akceptuję co poświadczam własnoręcznym '
-        'podpisem pod Deklaracją postoju. Oświadczam, iż w przypadku okresu postoju krótszego niż '
-        'zadeklarowany (wynikający m.in. ze sprzedaży jachtu) mam świadomość, że stawka będzie '
-        'rekalkulowana do krótszego okresu postoju, zgodnie z obowiązującym cennikiem.\n\n').paragraph_format.alignment = 3
-    document.add_paragraph(".........................................................				 .........."
-                           "...............................................").add_run(
-        '   podpis pracownika NCŻ                                                                                 '
-        '             podpis (imię, nazwisko)').italic = True
-
+    document = Document('externals/apps/declarations/deklaracja.docx')
+    create_declaration.create_declaration(document, parking_place, date, yacht, fee, owner_details, parking_period, commissioning_body, chip_card)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-
     filename = replace_non_ascii.removeAccents('Deklaracja_{}.docx'.format(yacht['name']))
     response['Content-Disposition'] = 'attachment; filename= "{}"'.format(filename)
     document.save(response)
@@ -148,8 +80,9 @@ def create_and_download_declaration(request):
 
 
 """
+
 Na jutro: 
-- popraw rubrykę adres do korespondencji w create_declaration (dodatkowa zmienna) + tutaj if żeby się zgadzało 
+- popraw rubrykę adres do korespondencji w declarations (dodatkowa zmienna) + tutaj if żeby się zgadzało 
 - Dodaj i ustaw plik z obliczaniem opłaty (dokładnie!!!!)
 
 BAARRRDZO DOBRA RRRROBOTA
