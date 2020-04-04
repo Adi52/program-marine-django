@@ -1,14 +1,20 @@
 import datetime
 from math import ceil
 
+COST_PER_DAY_SUMMER = 4.3
+COST_PER_DAY_WINTER = 1
+
 
 def count_parking_fee(date_from, date_to, yacht):
+    date_from = datetime.datetime.combine(date_from, datetime.time(0, 0))
+    date_to = datetime.datetime.combine(date_to, datetime.time(0, 0))
     price = 0
     this_year = datetime.date.today().year
     start_summer_season = datetime.datetime(this_year, 5, 1)
     end_summer_season = datetime.datetime(this_year, 10, 31)
     start_winter_season = datetime.datetime(this_year, 11, 1)
     end_winter_season = datetime.datetime(this_year + 1, 4, 30)
+
     if start_summer_season <= date_from <= end_summer_season:
         if date_to <= end_summer_season:
             # od /sezon letni/ do /sezon letni/
@@ -25,6 +31,8 @@ def count_parking_fee(date_from, date_to, yacht):
             price = summer + winter
     elif end_summer_season < date_from <= end_winter_season:
         price = winter_fee(date_from, date_to, yacht)
+    else:
+        price = winter_fee(date_from, date_to, yacht)
     return price
 
 
@@ -37,11 +45,11 @@ def summer_fee(date_from, date_to, yacht):
     number_of_days = count_days(date_from, date_to)
 
     if number_of_days == 184:
-        return number_of_days * ceil(yacht['length']) * 0.7 * 4.3
+        return COST_PER_DAY_SUMMER * number_of_days * ceil(yacht['length']) * 0.7
     else:
-        return number_of_days * ceil(yacht['length']) * 4.3
+        return COST_PER_DAY_SUMMER * number_of_days * ceil(yacht['length'])
 
 
 def winter_fee(date_from, date_to, yacht):
     number_of_days = count_days(date_from, date_to)
-    return 1 * ceil(yacht['length']) * ceil(yacht['width']) * number_of_days
+    return COST_PER_DAY_WINTER * ceil(yacht['length']) * ceil(yacht['width']) * number_of_days

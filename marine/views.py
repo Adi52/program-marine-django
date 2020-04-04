@@ -61,7 +61,9 @@ def create_and_download_declaration(request):
         date = str(c_d.date)
         yacht = {'name': c_d.name_yacht, 'registration_number': c_d.registration_number, 'home_port': c_d.home_port,
                  'length': c_d.yacht_length, 'width': c_d.yacht_width, 'ytype': c_d.yacht_type}
-        fee = {'parking_fee': 8000.65, 'quarter_fee': 2000}
+        fee = {'parking_fee': count_parking_fee.count_parking_fee(c_d.parking_period_from, c_d.parking_period_to, yacht),
+               'quarter_fee': 2000}
+        print(fee['parking_fee'])
         if fee['parking_fee'] % 1 == 0:
             fee_words = '{}'.format(zl_to_words.change_to_words(floor(fee['parking_fee'])))
         else:
