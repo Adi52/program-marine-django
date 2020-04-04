@@ -24,7 +24,6 @@ class EntryDataForm(forms.ModelForm):
             'commissioning_body_nip',
             'parking_period_from',
             'parking_period_to',
-            'correspondence_address',
             'chip_card'
         ]
         # W ten sposób dodajemy widgety aby ładnie dorobić potem frontend
@@ -36,8 +35,3 @@ class EntryDataForm(forms.ModelForm):
                                                         'max': datetime.date(datetime.date.today().year + 1, 4, 30)}),
 
         }
-
-
-"""
-Usuń możliwość wybrania niemożliwego okresu od przyszłości do przeszłości!
-"""

@@ -47,9 +47,6 @@ class EntryData(models.Model):
     commissioning_body_nip = models.CharField(max_length=30, verbose_name='NIP')
     parking_period_from = models.DateField(null=True, verbose_name='Postój od')
     parking_period_to = models.DateField(null=True, verbose_name='Postój do')
-    correspondence_address = models.CharField(max_length=100, blank=True,
-                                              default='Wpisz jeżeli różni się od adresu wyżej',
-                                              verbose_name='Adres do korespondencji')
     chip_card = models.BooleanField(default=False, verbose_name='Karta chipowa')
 
     def clean(self):
