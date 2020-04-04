@@ -1,5 +1,5 @@
 
-def create_declaration(document, parking_place, date, yacht, fee, owner_details, parking_period, commissioning_body, chip_card, media):
+def create_declaration(document, parking_place, date, yacht, fee, fee_words, owner_details, parking_period, commissioning_body, chip_card):
     media = False
 
     if chip_card:
@@ -51,6 +51,7 @@ def create_declaration(document, parking_place, date, yacht, fee, owner_details,
     document.add_paragraph('')
     document.add_paragraph('Opłata za postój wynosi: ', style='List Number').add_run(
         str(fee['parking_fee'])).bold = True
+    document.add_paragraph('Słownie: ', style='List Number').add_run(fee_words).bold = True
     document.add_paragraph(
         'Czynsz płatny, zgodnie z wystawioną fakturą z góry, jednorazowo lub w czterech poniższych '
         'ratach za każdy kwartał do:')

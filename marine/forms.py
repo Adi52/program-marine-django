@@ -5,7 +5,6 @@ from .models import EntryData
 import datetime
 
 
-
 class EntryDataForm(forms.ModelForm):
     class Meta:
         model = EntryData
@@ -31,8 +30,10 @@ class EntryDataForm(forms.ModelForm):
         # W ten sposób dodajemy widgety aby ładnie dorobić potem frontend
         widgets = {
             'name_yacht': forms.TextInput(attrs={'class': 'name_yacht', 'placeholder': 'np. Sunrisse'}),
-            'parking_period_from': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today()}),
-            'parking_period_to': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today()}),
+            'parking_period_from': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today(),
+                                                          'max': datetime.date(datetime.date.today().year + 1, 4, 30)}),
+            'parking_period_to': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today(),
+                                                        'max': datetime.date(datetime.date.today().year + 1, 4, 30)}),
 
         }
 
