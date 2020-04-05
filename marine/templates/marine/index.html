@@ -18,13 +18,13 @@
                 {% endif %}
             </th>
             <th>
-                <form action="{% url 'marine:new_book' %}">
+
                 {% if parking_place.place_free %}
-                    <button type="submit" name="parking_place" value="{{ parking_place.parking_place }}">Rezerwuj</button>
+                    <a href="{% url 'marine:new_book' parking_place.id %}">Rezerwuj</a>
                 {% else %}
                     <button type="button" disabled>Rezerwuj</button>
                 {% endif %}
-                </form>
+
             </th>
         </tr>
     {% endfor %}

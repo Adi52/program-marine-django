@@ -1,7 +1,7 @@
-
-def create_declaration(document, parking_place, date, yacht, fee, fee_words, owner_details, parking_period, commissioning_body, chip_card):
+def create_declaration(document, parking_place, date, yacht, fee, fee_words, owner_details, parking_period,
+                       commissioning_body, chip_card):
     media = False
-
+    fee['quarter_fee'] = round(fee['parking_fee'] / 4, 2)
     if chip_card:
         chip_card = 'Tak'
     else:
@@ -49,16 +49,16 @@ def create_declaration(document, parking_place, date, yacht, fee, fee_words, own
     document.add_paragraph('            - od dnia: ').add_run(parking_period['from']).bold = True
     document.add_paragraph('            - do dnia: ').add_run(parking_period['to']).bold = True
     document.add_paragraph('')
-    document.add_paragraph('Opłata za postój wynosi: ', style='List Number').add_run(
-        str(fee['parking_fee'])).bold = True
+    x = document.add_paragraph('Opłata za postój wynosi: ', style='List Number').add_run(
+        str(fee['parking_fee']) + " zł").bold = True
     document.add_paragraph('Słownie: ', style='List Number').add_run(fee_words).bold = True
     document.add_paragraph(
         'Czynsz płatny, zgodnie z wystawioną fakturą z góry, jednorazowo lub w czterech poniższych '
         'ratach za każdy kwartał do:')
-    document.add_paragraph('      I. 15.05.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('     II. 15.08.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('    III. 15.11.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
-    document.add_paragraph('    IV. 15.21.2020, w kwocie: ').add_run(str(fee['quarter_fee'])).bold = True
+    document.add_paragraph('      I. 15.05.2020, w kwocie: ').add_run(str(fee['quarter_fee']) + " zł.").bold = True
+    document.add_paragraph('     II. 15.08.2020, w kwocie: ').add_run(str(fee['quarter_fee']) + " zł.").bold = True
+    document.add_paragraph('    III. 15.11.2020, w kwocie: ').add_run(str(fee['quarter_fee']) + " zł.").bold = True
+    document.add_paragraph('    IV. 15.21.2020, w kwocie: ').add_run(str(fee['quarter_fee']) + " zł.").bold = True
     document.add_paragraph('na rachunek Wynajmującego o nr  88 1030 1117 0000 0000 8899 5007.')
     document.add_paragraph('Adres do korespondencji: ', style='List Number').add_run(
         owner_details['address']).bold = True

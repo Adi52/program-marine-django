@@ -1,3 +1,19 @@
+"""
+ __________________________________________________________________________________________________________
+|                                   CENNIK NCŻ (na dzień 05.04.2020                                        |
+|----------------------------------------------------------------------------------------------------------|
+|                       Opłata za postój w sezonie letnim 4.30 zł * dł * ilość dni                         |
+|                   Opłata za postój w sezonie zimowym 1.00 zł * dł * szer * ilość dni                     |
+|    (prosta modyfikacja przez zmiane zmiennej: dla lata COST_PER_DAY_SUMMER, dla zimy COST_PER_WINTER)    |
+|                                                                                                          |
+|                                               RABATY:                                                    |
+|    Jeżeli jacht stoi cały sezon letni (od 01.05 do 31.10) przysługuje mu zniżka 30% od całej kwoty za    |
+|                                             sezon letni.                                                 |
+|   Jeżeli jacht stoi od 01.05.Y do 31.04.Y+1 to przysługuje mu zniżka 30% od całej kwoty za sezon letni   |
+|                               oraz 50% od całej kwoty za sezon zimowy.                                   |
+|__________________________________________________________________________________________________________|
+"""
+
 import datetime
 from math import ceil
 

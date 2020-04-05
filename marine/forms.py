@@ -6,6 +6,7 @@ import datetime
 
 
 class EntryDataForm(forms.ModelForm):
+
     class Meta:
         model = EntryData
         fields = [

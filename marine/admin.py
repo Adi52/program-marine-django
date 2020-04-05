@@ -25,4 +25,28 @@ powiązany obiekt w EntryData. Ponieważ po wyzerowaniu obiektu ParkingPlace na 
 wolne (i tak właśnie powinno działać), ale po złożeniu rezerwacji na miejscu "wolnym" występuje błąd ponieważ próbujemy
 przypisać więcej niż jedną łódkę do jednego miejsca.
 
+
+Dodaj drugą deklarację (nierezydencką)
+zrób jakieś rozróżnianie między rezydentem a nie rezydentem. 
+
+
+Zrób testy!!
+
+
+Zrób wymóg potwierdzenia z maila, w przeciwnym wypadku rezerwacja jest usuwana.
+
+
+Zrób jakoś szyfrowanie linku (lub ograniczenie dostępu), aby nie każdy miał dostęp do pobierania deklaracji
+
+
+Zrób logowanie, może w przyszłości
+
+
+Zrób apke do obliczania wysokości opłaty za postój
+
+
+Frontend
+
+Po upłynięciu terminu postoju zrób podświetlenie danej pozycji w panelu admina, oraz zmianę na stronie głównej na 
+napis w stylu "zajęte", czy "rezerwacja".
 """
