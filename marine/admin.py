@@ -36,9 +36,6 @@ Zrób testy!!
 Zrób wymóg potwierdzenia z maila, w przeciwnym wypadku rezerwacja jest usuwana.
 
 
-Zrób jakoś szyfrowanie linku (lub ograniczenie dostępu), aby nie każdy miał dostęp do pobierania deklaracji
-
-
 Zrób logowanie, może w przyszłości
 
 

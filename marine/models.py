@@ -1,5 +1,7 @@
 from django.db import models
 import datetime
+import binascii
+import os
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from django.core.exceptions import ValidationError
@@ -48,6 +50,7 @@ class EntryData(models.Model):
     parking_period_from = models.DateField(null=True, verbose_name='Postój od')
     parking_period_to = models.DateField(null=True, verbose_name='Postój do')
     chip_card = models.BooleanField(default=False, verbose_name='Karta chipowa')
+    secret_key = binascii.hexlify(os.urandom(32)).decode()
 
     def clean(self):
         super().clean()

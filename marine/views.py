@@ -1,3 +1,6 @@
+import os
+import binascii
+
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse
@@ -35,21 +38,20 @@ def new_book(request, parking_place_id):
             place = form.save(commit=False)
             place.parking_place = parking_place
             place.save()
-            return HttpResponseRedirect(reverse('marine:congrats', args=[parking_place_id]))
+            secret_key = binascii.hexlify(os.urandom(32)).decode()
+            return HttpResponseRedirect(reverse('marine:congrats', args=[parking_place_id, secret_key]))
 
     context = {'form': form, 'parking_place_id': parking_place_id}
     return render(request, 'marine/new_book.html', context)
 
 
-def congrats(request, parking_place_id):
-    get_object_or_404(EntryData, parking_place=parking_place_id)
-    return render(request, 'marine/congrats.html', {'parking_place_id': parking_place_id})
+def congrats(request, parking_place_id, secret_key):
+    secret_key = binascii.hexlify(os.urandom(32)).decode()
+    return render(request, 'marine/congrats.html', {'parking_place_id': parking_place_id, 'secret_key': secret_key})
 
 
-def create_and_download_declaration(request, parking_place_id):
+def create_and_download_declaration(request, parking_place_id, secret_key):
     """Strona po przesłaniu formularza oraz wygenerowanie deklaracji"""
-    # Pobiera id miejsca postoju którego dotyczy deklaracja (w c_d nie można podać 'A-02' tylko id tego obiektu).
-    #c_d = EntryData.objects.get(parking_place=parking_place_id)
     c_d = get_object_or_404(EntryData, parking_place=parking_place_id)
     parking_place = str(c_d.parking_place)
     date = str(c_d.date)
