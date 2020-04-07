@@ -14,12 +14,13 @@
             <th>
                 {% if parking_place.occupied_to and not parking_place.place_free %}
                 {{ parking_place.occupied_to }}
+                {% elif parking_place.occupied_to %} PRZEDŁUŻENIE REZERWACJI
                 {% else %} WOLNE
                 {% endif %}
             </th>
             <th>
 
-                {% if parking_place.place_free %}
+                {% if not parking_place.occupied_to %}
                     <a href="{% url 'marine:new_book' parking_place.id %}">Rezerwuj</a>
                 {% else %}
                     <button type="button" disabled>Rezerwuj</button>

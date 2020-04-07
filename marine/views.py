@@ -1,11 +1,10 @@
-import os
-import binascii
+from os import urandom
+from binascii import hexlify
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse
 from django.views import generic
-
 
 from math import floor
 
@@ -38,7 +37,7 @@ def new_book(request, parking_place_id):
             place = form.save(commit=False)
             place.parking_place = parking_place
             place.save()
-            secret_key = binascii.hexlify(os.urandom(32)).decode()
+            secret_key = hexlify(urandom(32)).decode()
             return HttpResponseRedirect(reverse('marine:congrats', args=[parking_place_id, secret_key]))
 
     context = {'form': form, 'parking_place_id': parking_place_id}
@@ -46,7 +45,6 @@ def new_book(request, parking_place_id):
 
 
 def congrats(request, parking_place_id, secret_key):
-    secret_key = binascii.hexlify(os.urandom(32)).decode()
     return render(request, 'marine/congrats.html', {'parking_place_id': parking_place_id, 'secret_key': secret_key})
 
 

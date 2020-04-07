@@ -1,16 +1,14 @@
 from django.db import models
 import datetime
-import binascii
-import os
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from django.core.exceptions import ValidationError
-
+from django.utils.html import format_html
 
 class ParkingPlace(models.Model):
-    parking_place = models.CharField(max_length=5)
-    occupied_to = models.DateField('Occupied to', blank=True, null=True)
-    name_yacht = models.CharField(max_length=50, null=True, blank=True)
+    parking_place = models.CharField('Miejsce postoju', max_length=5)
+    occupied_to = models.DateField('Zajęte do', blank=True, null=True)
+    name_yacht = models.CharField('Nazwa jachtu', max_length=50, null=True, blank=True)
 
     def place_free(self):
         if self.occupied_to:
@@ -19,10 +17,20 @@ class ParkingPlace(models.Model):
             return True
 
     place_free.boolean = True
-    place_free.short_description = 'Place free?'
+    place_free.short_description = 'STATUS'
+
+    def check_it(self):
+        if self.occupied_to and self.occupied_to <= datetime.date.today():
+            return False
+        else:
+            return True
+
+    check_it.boolean = True
+    check_it.short_description = 'AKTYWNA REZERWACJA'
 
     def __str__(self):
-        return self.parking_place
+        if self.check_it:
+            return self.parking_place
 
 
 YACHT_TYPE_CHOICES = (
@@ -50,7 +58,12 @@ class EntryData(models.Model):
     parking_period_from = models.DateField(null=True, verbose_name='Postój od')
     parking_period_to = models.DateField(null=True, verbose_name='Postój do')
     chip_card = models.BooleanField(default=False, verbose_name='Karta chipowa')
-    secret_key = binascii.hexlify(os.urandom(32)).decode()
+
+    def check_it(self):
+        if self.parking_period_to <= datetime.date.today():
+            return format_html('<color style="color: red">KONIEC REZERWACJI</span>')
+
+    check_it.short_description = ''
 
     def clean(self):
         super().clean()

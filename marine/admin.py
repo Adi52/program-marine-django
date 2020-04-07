@@ -10,14 +10,16 @@ def reset_occupied_to(modeladmin, request, queryset):
 
 # Register your models here.
 class ParkingPlaceAdmin(admin.ModelAdmin):
-    list_display = ('parking_place', 'name_yacht', 'occupied_to', 'place_free')
+    list_display = ('parking_place', 'check_it', 'name_yacht', 'occupied_to', 'place_free')
     actions = [reset_occupied_to]
 
 
+class EntryDataAdmin(admin.ModelAdmin):
+    list_display = ('parking_place', 'check_it', 'name_yacht')
+
+
 admin.site.register(ParkingPlace, ParkingPlaceAdmin)
-admin.site.register(EntryData)
-
-
+admin.site.register(EntryData, EntryDataAdmin)
 
 """
 Tu jest taki problem, że po wywołaniu funkcji reset_occupied_to zeruje ona objekt w ParkingPlace, powinna też usunąć 
