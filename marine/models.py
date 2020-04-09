@@ -5,6 +5,7 @@ from django.dispatch.dispatcher import receiver
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 
+
 class ParkingPlace(models.Model):
     parking_place = models.CharField('Miejsce postoju', max_length=5)
     occupied_to = models.DateField('Zajęte do', blank=True, null=True)
@@ -21,12 +22,7 @@ class ParkingPlace(models.Model):
 
     def check_it(self):
         if self.occupied_to and self.occupied_to <= datetime.date.today():
-            return False
-        else:
-            return True
-
-    check_it.boolean = True
-    check_it.short_description = 'AKTYWNA REZERWACJA'
+            return format_html('<color style="color: red">KONIEC REZERWACJI</span>')
 
     def __str__(self):
         if self.check_it:

@@ -38,17 +38,17 @@ def new_book(request, parking_place_id):
             place.parking_place = parking_place
             place.save()
             secret_key = hexlify(urandom(32)).decode()
-            return HttpResponseRedirect(reverse('marine:congrats', args=[parking_place_id, secret_key]))
+            return HttpResponseRedirect(reverse('marine:congrats', args=[secret_key, parking_place_id]))
 
     context = {'form': form, 'parking_place_id': parking_place_id}
     return render(request, 'marine/new_book.html', context)
 
 
-def congrats(request, parking_place_id, secret_key):
+def congrats(request, secret_key, parking_place_id):
     return render(request, 'marine/congrats.html', {'parking_place_id': parking_place_id, 'secret_key': secret_key})
 
 
-def create_and_download_declaration(request, parking_place_id, secret_key):
+def create_and_download_declaration(request, secret_key, parking_place_id):
     """Strona po przesłaniu formularza oraz wygenerowanie deklaracji"""
     c_d = get_object_or_404(EntryData, parking_place=parking_place_id)
     parking_place = str(c_d.parking_place)
@@ -73,7 +73,7 @@ def create_and_download_declaration(request, parking_place_id, secret_key):
     # Domyślnie False, ponieważ większości jachtów nie dotyczy
     chip_card = c_d.chip_card
     document = Document('externals/apps/declarations/deklaracja.docx')
-    create_declaration.create_declaration(document, parking_place, date, yacht, fee, fee_words, owner_details,
+    create_declaration.create_declaration_resident(document, parking_place, date, yacht, fee, fee_words, owner_details,
                                           parking_period, commissioning_body, chip_card)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     filename = replace_non_ascii.removeAccents('Deklaracja_{}.docx'.format(yacht['name']))
