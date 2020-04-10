@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Dziękujemy za złożenie rezerwacji!</title>
+</head>
+<body>
+    <center>
+        <span style="color: teal">
+            <h1>Witaj {{ name }}!</h1>
+            <p>Bardzo dziękujemy Ci za złożenie rezerwacji w naszej marinie!</p>
+            <p>Miejsce <b>{{ parking_place }}</b> będzie dla Państwa zarezerwowane od <b>{{ parking_period_from }}</b> do <b>{{ parking_period_to }}</b></p>
+            <p>Prosimy o kliknięcie poniższego linku, aby rezerwacja została potwierdzona. W przeciwnym wypadku zostanie ona anulowana w ciągu 24h.</p>
+
+            <a href="{% url 'marine:confirm_mail' secret_key parking_place_id %}">Pobierz</a>
+        </span>
+    </center>
+</body>
+</html>

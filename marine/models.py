@@ -36,6 +36,7 @@ YACHT_TYPE_CHOICES = (
 
 
 class EntryData(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
     parking_place = models.OneToOneField(ParkingPlace, on_delete=models.CASCADE, verbose_name='Miejsce postoju')
     date = models.DateField(auto_now_add=True)
     name_yacht = models.CharField(max_length=30, verbose_name='Nazwa jachtu')
@@ -54,6 +55,7 @@ class EntryData(models.Model):
     parking_period_from = models.DateField(null=True, verbose_name='Postój od')
     parking_period_to = models.DateField(null=True, verbose_name='Postój do')
     chip_card = models.BooleanField(default=False, verbose_name='Karta chipowa')
+    email_confirm = models.BooleanField(default=False, verbose_name='Potwierdzony mail')
 
     def check_it(self):
         if self.parking_period_to <= datetime.date.today():
