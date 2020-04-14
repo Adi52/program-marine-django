@@ -1,7 +1,10 @@
 import datetime
 
+
 def create_declaration_resident(document, parking_place, date, yacht, fee, fee_words, owner_details, parking_period,
-                       commissioning_body, chip_card):
+                                commissioning_body, chip_card):
+    parking_period['from'] = parking_period['from'].strftime("%d.%m.%Y")
+    parking_period['to'] = parking_period['to'].strftime("%d.%m.%Y")
     media = False
     fee['quarter_fee'] = round(fee['parking_fee'] / 4, 2)
     if chip_card:
@@ -57,8 +60,9 @@ def create_declaration_resident(document, parking_place, date, yacht, fee, fee_w
 
     this_year = datetime.date.today().year
 
-    if parking_period['from'] == '01.05.{}'.format(this_year) and parking_period['to'] == '30.04.{}'.format(this_year+1):
-        #Rezydent całoroczny
+    if parking_period['from'] == '01.05.{}'.format(this_year) and parking_period['to'] == '30.04.{}'.format(
+            this_year + 1):
+        # Rezydent całoroczny
         document.add_paragraph(
             'Czynsz płatny, zgodnie z wystawioną fakturą z góry, jednorazowo lub w poniższych '
             'ratach za każdy kwartał do:')
@@ -68,13 +72,16 @@ def create_declaration_resident(document, parking_place, date, yacht, fee, fee_w
         document.add_paragraph('    IV. 15.21.2020, w kwocie: ').add_run(str(fee['quarter_fee']) + " zł.").bold = True
         document.add_paragraph('na rachunek Wynajmującego o nr  88 1030 1117 0000 0000 8899 5007.')
 
-    elif parking_period['from'] == '01.05.{}'.format(this_year) and parking_period['to'] == '31.10.{}'.format(this_year):
-        #Rezydent półroczny
+    elif parking_period['from'] == '01.05.{}'.format(this_year) and parking_period['to'] == '31.10.{}'.format(
+            this_year):
+        # Rezydent półroczny
         document.add_paragraph(
             'Czynsz płatny, zgodnie z wystawioną fakturą z góry, jednorazowo lub w poniższych '
             'ratach za każdy kwartał do:')
-        document.add_paragraph('      I. 15.05.2020, w kwocie: ').add_run(str(round(fee['parking_fee']/2, 2)) + " zł.").bold = True
-        document.add_paragraph('     II. 15.08.2020, w kwocie: ').add_run(str(round(fee['parking_fee']/2, 2)) + " zł.").bold = True
+        document.add_paragraph('      I. 15.05.2020, w kwocie: ').add_run(
+            str(round(fee['parking_fee'] / 2, 2)) + " zł.").bold = True
+        document.add_paragraph('     II. 15.08.2020, w kwocie: ').add_run(
+            str(round(fee['parking_fee'] / 2, 2)) + " zł.").bold = True
         document.add_paragraph('na rachunek Wynajmującego o nr  88 1030 1117 0000 0000 8899 5007.')
 
     document.add_paragraph('Adres do korespondencji: ', style='List Number').add_run(
@@ -97,4 +104,3 @@ def create_declaration_resident(document, parking_place, date, yacht, fee, fee_w
                            "...............................................").add_run(
         '   podpis pracownika NCŻ                                                                                 '
         '             podpis (imię, nazwisko)').italic = True
-

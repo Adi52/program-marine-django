@@ -16,8 +16,10 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from externals.apps import replace_non_ascii, zl_to_words, count_parking_fee
+from externals.apps import replace_non_ascii, count_parking_fee
 from externals.apps.declarations import create_declaration
+
+from slownie import slownie_zl100gr
 
 from docx import Document
 
@@ -42,60 +44,55 @@ def new_book(request, parking_place_id):
             place = form.save(commit=False)
             place.parking_place = parking_place
             place.save()
-            secret_key = hexlify(urandom(32)).decode()
-            return HttpResponseRedirect(reverse('marine:congrats', args=[secret_key, parking_place_id]))
+
+            # Wysłanie maila potwierdzającego rezerwacje
+            # -----------------------------------------
+
+            subject = 'Dziękujemy za złożenie rezerwacji w naszej marinie!'
+            context = {'name': place.owner_details_name, 'parking_place': parking_place,
+                       'parking_period_from': place.parking_period_from.strftime("%d.%m.%Y"),
+                       'parking_period_to': place.parking_period_from.strftime("%d.%m.%Y"),
+                       'secret_key_email': place.secret_key_email,
+                       }
+            html_message = render_to_string('mail_template.html', context)
+            plain_message = strip_tags(html_message)
+
+            recipient = place.commissioning_body_email
+            send_mail(subject, plain_message, EMAIL_HOST_USER, [recipient], html_message=html_message)
+            # -----------------------------------------
+
+            secret_key = place.secret_key
+            return HttpResponseRedirect(reverse('marine:congrats', args=[secret_key]))
 
     context = {'form': form, 'parking_place_id': parking_place_id}
     return render(request, 'marine/new_book.html', context)
 
 
-def congrats(request, secret_key, parking_place_id):
-    return render(request, 'marine/congrats.html', {'parking_place_id': parking_place_id, 'secret_key': secret_key})
+def congrats(request, secret_key):
+    return render(request, 'marine/congrats.html', {'secret_key': secret_key})
 
 
-def create_and_download_declaration(request, secret_key, parking_place_id):
+def create_and_download_declaration(request, secret_key):
     """Strona po przesłaniu formularza oraz wygenerowanie deklaracji"""
-    c_d = get_object_or_404(EntryData, parking_place=parking_place_id)
-    parking_place = str(c_d.parking_place)
-    date = str(c_d.date)
-    yacht = {'name': c_d.name_yacht, 'registration_number': c_d.registration_number, 'home_port': c_d.home_port,
-             'length': c_d.yacht_length, 'width': c_d.yacht_width, 'ytype': c_d.yacht_type}
-    fee = {
-        'parking_fee': count_parking_fee.count_parking_fee(c_d.parking_period_from, c_d.parking_period_to, yacht),
-        'quarter_fee': 0}
-    if fee['parking_fee'] % 1 == 0:
-        fee_words = '{} złotych.'.format(zl_to_words.change_to_words(floor(fee['parking_fee'])))
-    else:
-        fee_words = '{} złotych {}/100 groszy'.format(zl_to_words.change_to_words(floor(fee['parking_fee'])),
-                                                      str(round(fee['parking_fee'] % 1, 2))[2:])
-    owner_details = {'name': c_d.owner_details_name, 'address': c_d.owner_details_address}
-    parking_period = {'from': c_d.parking_period_from.strftime("%d.%m.%Y"),
-                      'to': c_d.parking_period_to.strftime("%d.%m.%Y")}
+    entry_data = get_object_or_404(EntryData, secret_key=secret_key)
+    parking_place = str(entry_data.parking_place)
+    date = str(entry_data.date)
+    yacht = {'name': entry_data.name_yacht, 'registration_number': entry_data.registration_number,
+             'home_port': entry_data.home_port, 'length': entry_data.yacht_length, 'width': entry_data.yacht_width,
+             'ytype': entry_data.yacht_type}
+    fee = {'parking_fee': count_parking_fee.count_parking_fee(entry_data.parking_period_from,
+                                                              entry_data.parking_period_to, yacht)}
+    fee_words = slownie_zl100gr(fee['parking_fee'])
+    owner_details = {'name': entry_data.owner_details_name, 'address': entry_data.owner_details_address}
+    parking_period = {'from': entry_data.parking_period_from, 'to': entry_data.parking_period_to}
 
-    commissioning_body = {'name': c_d.commissioning_body_name, 'address': c_d.commissioning_body_address,
-                          'tel': c_d.commissioning_body_tel, 'e-mail': c_d.commissioning_body_email,
-                          'nip': c_d.commissioning_body_nip}
-    # Domyślnie False, ponieważ większości jachtów nie dotyczy
-    chip_card = c_d.chip_card
+    commissioning_body = {'name': entry_data.commissioning_body_name, 'address': entry_data.commissioning_body_address,
+                          'tel': entry_data.commissioning_body_tel, 'e-mail': entry_data.commissioning_body_email,
+                          'nip': entry_data.commissioning_body_nip}
+    chip_card = entry_data.chip_card
     document = Document('externals/apps/declarations/deklaracja.docx')
     create_declaration.create_declaration_resident(document, parking_place, date, yacht, fee, fee_words, owner_details,
                                                    parking_period, commissioning_body, chip_card)
-
-    # Wysłanie maila potwierdzającego rezerwacje
-    # -----------------------------------------
-
-    secret_key = hexlify(urandom(32)).decode()
-    subject = 'Dziękujemy za złożenie rezerwacji w naszej marinie!'
-    context = {'name': owner_details['name'], 'parking_place': parking_place,
-               'parking_period_from': parking_period['from'],
-               'parking_period_to': parking_period['to'], 'secret_key': secret_key,
-               'parking_place_id': parking_place_id}
-    html_message = render_to_string('mail_template.html', context)
-    plain_message = strip_tags(html_message)
-
-    recipient = commissioning_body['e-mail']
-    send_mail(subject, plain_message, EMAIL_HOST_USER, [recipient], html_message=html_message)
-    # -----------------------------------------
 
     # Pobranie pliku deklaracji
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
@@ -105,8 +102,8 @@ def create_and_download_declaration(request, secret_key, parking_place_id):
     return response
 
 
-def confirm_email(request, secret_key, parking_place_id):
-    entry_data = get_object_or_404(EntryData, parking_place=parking_place_id)
+def confirm_email(request, secret_key_email):
+    entry_data = get_object_or_404(EntryData, secret_key_email=secret_key_email)
     entry_data.email_confirm = True
     entry_data.save()
     return render(request, 'marine/email_confirm.html', {})

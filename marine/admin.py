@@ -26,9 +26,7 @@ Zrób wymóg potwierdzenia z maila, w przeciwnym wypadku rezerwacja jest usuwana
 
 Zrób testy!!
 
-
 Zrób logowanie, może w przyszłości
-
 
 Zrób apke do obliczania wysokości opłaty za postój
 

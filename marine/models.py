@@ -5,6 +5,11 @@ from django.dispatch.dispatcher import receiver
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 
+# Secret key
+import uuid
+
+
+# ------
 
 class ParkingPlace(models.Model):
     parking_place = models.CharField('Miejsce postoju', max_length=5)
@@ -23,6 +28,8 @@ class ParkingPlace(models.Model):
     def check_it(self):
         if self.occupied_to and self.occupied_to <= datetime.date.today():
             return format_html('<color style="color: red">KONIEC REZERWACJI</span>')
+
+    check_it.short_description = ''
 
     def __str__(self):
         if self.check_it:
@@ -56,6 +63,8 @@ class EntryData(models.Model):
     parking_period_to = models.DateField(null=True, verbose_name='Postój do')
     chip_card = models.BooleanField(default=False, verbose_name='Karta chipowa')
     email_confirm = models.BooleanField(default=False, verbose_name='Potwierdzony mail')
+    secret_key = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    secret_key_email = models.UUIDField(default=uuid.uuid4, editable=False)
 
     def check_it(self):
         if self.parking_period_to <= datetime.date.today():
