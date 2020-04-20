@@ -1,12 +1,7 @@
-from os import urandom
-from binascii import hexlify
-
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.views import generic
-
-from math import floor
 
 from .models import ParkingPlace, EntryData
 from .forms import EntryDataForm
@@ -45,7 +40,7 @@ def new_book(request, parking_place_id):
             place.parking_place = parking_place
             place.save()
 
-            # Wysłanie maila potwierdzającego rezerwacje
+            # Send email (booking confirmation)
             # -----------------------------------------
 
             subject = 'Dziękujemy za złożenie rezerwacji w naszej marinie!'
@@ -94,7 +89,7 @@ def create_and_download_declaration(request, secret_key):
     create_declaration.create_declaration_resident(document, parking_place, date, yacht, fee, fee_words, owner_details,
                                                    parking_period, commissioning_body, chip_card)
 
-    # Pobranie pliku deklaracji
+    # Download file (declaration)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     filename = replace_non_ascii.removeAccents('Deklaracja_{}.docx'.format(yacht['name']))
     response['Content-Disposition'] = 'attachment; filename= "{}"'.format(filename)

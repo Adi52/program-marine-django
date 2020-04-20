@@ -22,15 +22,19 @@ admin.site.register(ParkingPlace, ParkingPlaceAdmin)
 admin.site.register(EntryData, EntryDataAdmin)
 
 """
-Zrób wymóg potwierdzenia z maila, w przeciwnym wypadku rezerwacja jest usuwana.
 
-Zrób testy!!
 
 Zrób logowanie, może w przyszłości
 
 Zrób apke do obliczania wysokości opłaty za postój
+// Pokazuję kwotę, status rezydent/nierezydent, jeżeli nierezydent - mówi co zrobić aby być rezydentem i otrzymać lepszą cenę
+// przekazuje warunki cennikowe
+// 
 
+layout
 
 Frontend
+
+Zrób testy!!
 
 """

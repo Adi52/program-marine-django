@@ -1,5 +1,7 @@
 from django.urls import path
 
+from .tasks import scheduler
+
 from . import views
 
 app_name = 'marine'
@@ -12,3 +14,4 @@ urlpatterns = [
     path('new_book/confirm_email/<str:secret_key_email>/', views.confirm_email, name='confirm_mail'),
 
 ]
+scheduler.start()
